@@ -3,8 +3,7 @@ from __future__ import annotations
 from enum import Enum
 from typing import AbstractSet, Any, Dict, List, Mapping, Optional, Union
 
-from pydantic import BaseModel
-from pydantic.types import ConstrainedStr
+from pydantic import BaseModel, constr
 
 IntStr = Union[int, str]
 AbstractSetIntStr = AbstractSet[IntStr]
@@ -24,15 +23,9 @@ class ProjectType(str, Enum):
     INTENT_DETECTION_AND_SLOT_FILLING = "IntentDetectionAndSlotFilling"
 
 
-class Name(ConstrainedStr):
-    min_length = 1
-    max_length = 100
-    strip_whitespace = True
+Name = constr(min_length=1, max_length=100, strip_whitespace=True)
+Description = constr(min_length=1, strip_whitespace=True)
 
-
-class Description(ConstrainedStr):
-    min_length = 1
-    strip_whitespace = True
 
 
 class Project(BaseModel):

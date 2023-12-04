@@ -2,8 +2,7 @@ import random
 import re
 from typing import Literal, Optional
 
-from pydantic import BaseModel, Field, root_validator
-from pydantic.types import ConstrainedStr
+from pydantic import BaseModel, Field, root_validator, constr
 
 PREFIX_KEY = Literal["ctrl", "shift", "ctrl shift"]
 SUFFIX_KEY = Literal[
@@ -50,25 +49,22 @@ def generate_random_hex_color():
     return f"#{random.randint(0, 0xFFFFFF):06x}"
 
 
-class Text(ConstrainedStr):
-    min_length = 1
-    max_length = 100
-    strip_whitespace = True
+# Define a custom text type with constraints
+Text = constr(min_length=1, max_length=100, strip_whitespace=True)
 
-
-class Color(ConstrainedStr):
-    regex = re.compile(r"#[a-fA-F0-9]{6}")
-
+# Define a custom color type with regex
+Color = constr(min_length=7, max_length=7)  # Length of a hex color code including '#'
+ColorField = Field(default_factory=str, pattern=r'^#[a-fA-F0-9]{6}$')
 
 class LabelType(BaseModel):
     id: Optional[int]
     text: Text
     prefix_key: Optional[PREFIX_KEY] = None
     suffix_key: Optional[SUFFIX_KEY] = None
-    background_color: Color = Field(default_factory=generate_random_hex_color)
+    background_color: Color = ColorField
     text_color: Color = Field(default="#ffffff")
 
-    @root_validator
+    @root_validator(pre=False, skip_on_failure=True)
     def deny_only_prefix_key(cls, values):
         prefix_key = values.get("prefix_key")
         suffix_key = values.get("suffix_key")

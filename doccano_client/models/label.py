@@ -27,7 +27,7 @@ class Span(Label):
     start_offset: NonNegativeInt
     end_offset: NonNegativeInt
 
-    @root_validator
+    @root_validator(pre=False, skip_on_failure=True)
     def check_start_offset_is_less_than_end_offset(cls, values):
         start_offset, end_offset = values.get("start_offset"), values.get("end_offset")
         if start_offset >= end_offset:
